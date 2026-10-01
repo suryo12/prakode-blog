@@ -1,0 +1,10 @@
+name = "prakode-blog"
+pages_build_output_dir = "out"
+compatibility_date = "2025-09-01"
+
+# View counter storage (see schema.sql). The SALT secret is set with:
+#   npx wrangler pages secret put SALT --project-name prakode-blog
+[[d1_databases]]
+binding = "DB"
+database_name = "prakode-blog-db"
+database_id = "f4607568-8dec-4548-8ce1-c73995a2a46e"

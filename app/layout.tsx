@@ -3,6 +3,7 @@ import { Inter, Newsreader } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Analytics from "@/components/Analytics";
 import { SearchDialog } from "@/components/Search";
 import { site } from "@/lib/site";
 
@@ -27,6 +28,22 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: { default: site.title, template: `%s — ${site.name}` },
   description: site.description,
+  applicationName: site.name,
+  keywords: site.keywords,
+  authors: [{ name: site.author, url: site.aboutUrl }],
+  creator: site.author,
+  category: "technology",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   alternates: {
     canonical: "/",
     types: { "application/rss+xml": "/rss.xml" },
@@ -38,7 +55,11 @@ export const metadata: Metadata = {
     description: site.description,
     url: site.url,
   },
-  twitter: { card: "summary", title: site.title, description: site.description },
+  twitter: {
+    card: "summary_large_image",
+    title: site.title,
+    description: site.description,
+  },
 };
 
 export default function RootLayout({
@@ -58,6 +79,7 @@ export default function RootLayout({
         </main>
         <Footer />
         <SearchDialog />
+        <Analytics />
       </body>
     </html>
   );

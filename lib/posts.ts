@@ -42,7 +42,9 @@ export function getAllPosts(): Post[] {
     .filter((f) => /\.mdx?$/.test(f))
     .map(readPost)
     .filter((p) => process.env.NODE_ENV !== "production" || !p.draft)
-    .sort((a, b) => (a.date < b.date ? 1 : -1));
+    .sort((a, b) =>
+      a.date === b.date ? a.slug.localeCompare(b.slug) : a.date < b.date ? 1 : -1,
+    );
 }
 
 export function getPost(slug: string): Post | undefined {

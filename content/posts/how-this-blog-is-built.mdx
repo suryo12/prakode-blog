@@ -1,0 +1,63 @@
+---
+title: "How this blog is built: static Next.js, Cloudflare, and a visitor counter that doesn't spy"
+description: "A look under the hood: MDX files in a repo, a fully static site, client-side search, GitHub-backed comments and a privacy-friendly view counter on Cloudflare D1."
+date: 2026-10-01
+tags: [nextjs, cloudflare, meta]
+---
+
+Since the first post here is a bit of a placeholder, this one is the proper "how it works" post. A personal blog is a tiny product with a surprising number of decisions in it, so here is what I chose and why.
+
+## The shape of it
+
+The whole site is **static**. Every page is generated at build time and served as plain files from Cloudflare Pages. There is no server rendering anything when you open a post, which is why it loads quickly and why there is almost nothing to break.
+
+- **Framework:** Next.js (App Router) with static export.
+- **Posts:** MDX files in the repository, each with a few lines of front matter (title, description, date, tags). Writing a post is creating a file and pushing it.
+- **Hosting:** Cloudflare Pages, with the domain on the same Cloudflare account.
+- **Design:** one light theme, a serif face for reading and a sans for the interface. The reading column is a fixed comfortable width even on a huge monitor; the extra room goes to a contents list and post details on the sides.
+
+## Search without a search server
+
+A static site cannot query a database, but it does not need to. At build time the site writes a single JSON file with every post's title, description, tags and text. Press `/` or `Ctrl+K` and your browser loads that file once and searches it locally.
+
+For a blog with tens or even hundreds of posts, that is instant and costs nothing to run. If it ever outgrows that, the interface can stay and the engine underneath can change.
+
+## Comments, and why they live on GitHub
+
+Comments need storage, and storage means a database, spam handling and moderation. I did not want to run any of that, so comments use [Giscus](https://giscus.app), which stores each thread as a GitHub Discussion in the blog's repository.
+
+The trade-off is honest: you need a GitHub account to comment. In exchange there is no tracking, no ads, no extra service to maintain, and the comments are part of the repository history.
+
+## A visitor counter that doesn't track you
+
+I wanted to know whether anyone reads this, but I did not want to add a heavy analytics script or cookies. So the counter is a small piece of code of my own, running on Cloudflare Pages Functions with a Cloudflare D1 database.
+
+How it works:
+
+1. When a page loads, the browser sends one tiny request saying which post was opened.
+2. The server builds a **one-way hash** from your IP address, browser string and the current day, mixed with a secret salt.
+3. If that hash has not been seen today, the counters go up by one. Otherwise nothing changes.
+4. Only the hash is kept, never the IP address or the browser string, and old hashes are deleted after a few days.
+
+That gives a number that means "roughly how many different people read this today", summed over time, and it cannot be used to follow anyone around the web. Obvious bots are ignored, and the server only counts real posts, so nobody can fill the table with junk.
+
+It is deliberately approximate. A person who reads on their phone and their laptop counts twice, and someone with unusual privacy settings may not count at all. For a personal blog, that is a fair deal.
+
+## Search engines and sharing
+
+A blog nobody can find is a diary. So each page ships with the basics done carefully:
+
+- A proper title, description and canonical URL on every page.
+- Structured data (`BlogPosting`, breadcrumbs, and the author as a `Person`) so search engines understand what they are looking at.
+- A generated social preview image for each post, created at build time.
+- A sitemap, a `robots.txt` and an RSS feed.
+
+None of this is exotic. It is just the checklist that gets skipped when you are in a hurry.
+
+## What I would change later
+
+- A "related posts" section once there are enough posts for it to be useful.
+- Smarter search ranking, if the simple scoring starts to feel dumb.
+- An English and Indonesian version of some posts.
+
+If you are building something similar and want to compare notes, or you spot something I could do better, leave a comment below.

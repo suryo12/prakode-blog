@@ -7,6 +7,17 @@ export const site = {
   author: "Suryo Prakoso Putra",
   aboutUrl: "https://me.prakode.site",
   language: "en",
+  github: "https://github.com/suryo12",
+  keywords: [
+    "software engineering",
+    "backend engineering",
+    "NestJS",
+    "PostgreSQL",
+    "fleet management",
+    "fintech",
+    "technical project management",
+    "Suryo Prakoso Putra",
+  ],
 };
 
 export const giscus = {

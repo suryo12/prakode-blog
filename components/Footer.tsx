@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SiteVisitors } from "./ViewCount";
 import { site } from "@/lib/site";
 
 export default function Footer() {
@@ -17,6 +18,7 @@ export default function Footer() {
         </nav>
         <p className="footer-copy">
           © {new Date().getFullYear()} {site.author}
+          <SiteVisitors />
         </p>
       </div>
     </footer>

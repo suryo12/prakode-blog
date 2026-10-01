@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatDate, type PostMeta } from "@/lib/posts";
+import { ViewCount } from "./ViewCount";
 
 function Card({ p, featured }: { p: PostMeta; featured?: boolean }) {
   return (
@@ -13,6 +14,7 @@ function Card({ p, featured }: { p: PostMeta; featured?: boolean }) {
         <time dateTime={p.date}>{formatDate(p.date)}</time>
         <span aria-hidden="true">·</span>
         <span>{p.readingMinutes} min read</span>
+        <ViewCount slug={p.slug} />
         {p.tags.map((t) => (
           <Link
             key={t}

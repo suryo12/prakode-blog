@@ -1186,3 +1186,20 @@ a:hover {
   margin: 0;
   font-size: 13px;
 }
+
+/* ---------- Counters ---------- */
+.views,
+.visitors {
+  font-variant-numeric: tabular-nums;
+}
+.rail-views:not(:has(.views)) {
+  display: none;
+}
+.visitors::before {
+  content: " · ";
+}
+.card-meta .views::before,
+.post-meta .views::before {
+  content: "·";
+  margin-right: 10px;
+}

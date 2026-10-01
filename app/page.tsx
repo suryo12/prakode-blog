@@ -7,8 +7,34 @@ import { site } from "@/lib/site";
 
 export default function Home() {
   const posts = getAllPosts();
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: site.name,
+      url: site.url,
+      description: site.description,
+      inLanguage: site.language,
+      author: { "@id": `${site.aboutUrl}/#person` },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "@id": `${site.aboutUrl}/#person`,
+      name: site.author,
+      url: site.aboutUrl,
+      jobTitle: "Software Engineer & Technical Project Manager",
+      sameAs: [site.aboutUrl, site.github],
+    },
+  ];
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <section className="hero">
         <div className="hero-text">
           <p className="eyebrow">Hello, I&apos;m Suryo</p>

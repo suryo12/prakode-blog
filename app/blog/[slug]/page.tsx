@@ -8,6 +8,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypePrettyCode from "rehype-pretty-code";
 import Comments from "@/components/Comments";
 import ReadingProgress from "@/components/ReadingProgress";
+import { ViewCount } from "@/components/ViewCount";
 import Toc from "@/components/Toc";
 import { formatDate, getAllPosts, getHeadings, getPost } from "@/lib/posts";
 import { site } from "@/lib/site";
@@ -41,7 +42,12 @@ export async function generateMetadata({
       authors: [site.author],
       tags: post.tags,
     },
-    twitter: { card: "summary", title: post.title, description: post.description },
+    keywords: [...post.tags, ...site.keywords.slice(0, 3)],
+    twitter: {
+      card: "summary_large_image",
+      title: post.title,
+      description: post.description,
+    },
   };
 }
 
@@ -58,15 +64,33 @@ export default async function PostPage({
   const newer = posts[index - 1];
   const older = posts[index + 1];
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    headline: post.title,
-    description: post.description,
-    datePublished: post.date,
-    author: { "@type": "Person", name: site.author, url: site.aboutUrl },
-    mainEntityOfPage: `${site.url}/blog/${post.slug}`,
-  };
+  const url = `${site.url}/blog/${post.slug}`;
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: post.title,
+      description: post.description,
+      datePublished: post.date,
+      dateModified: post.date,
+      inLanguage: site.language,
+      keywords: post.tags.join(", "),
+      wordCount: post.content.split(/\s+/).filter(Boolean).length,
+      image: `${url}/opengraph-image`,
+      author: { "@type": "Person", name: site.author, url: site.aboutUrl },
+      publisher: { "@type": "Person", name: site.author, url: site.aboutUrl },
+      mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: site.url },
+        { "@type": "ListItem", position: 2, name: "Blog", item: `${site.url}/blog` },
+        { "@type": "ListItem", position: 3, name: post.title, item: url },
+      ],
+    },
+  ];
 
   const tagLinks = post.tags.map((t) => (
     <Link key={t} href={`/tags/${encodeURIComponent(t)}`} className="tag">
@@ -100,6 +124,12 @@ export default async function PostPage({
             <dt>Reading time</dt>
             <dd>{post.readingMinutes} min</dd>
           </div>
+          <div className="rail-views">
+            <dt>Reads</dt>
+            <dd>
+              <ViewCount slug={post.slug} />
+            </dd>
+          </div>
           {post.tags.length > 0 && (
             <div>
               <dt>Topics</dt>
@@ -119,6 +149,7 @@ export default async function PostPage({
           <time dateTime={post.date}>{formatDate(post.date)}</time>
           <span aria-hidden="true">·</span>
           <span>{post.readingMinutes} min read</span>
+          <ViewCount slug={post.slug} />
           {tagLinks}
         </div>
       </header>
