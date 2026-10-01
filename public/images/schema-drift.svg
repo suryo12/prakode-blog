@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 500" role="img" aria-labelledby="t d">
+  <title id="t">How migradrift catches schema drift</title>
+  <desc id="d">Two services each have valid migrations. service-a drops the column legacy_note and narrows status to varchar(20); service-b still uses legacy_note and has status as text. migradrift replays both sets of migrations, builds a snapshot per service and compares the shared table. It reports an error for the dropped column and a warning for the type mismatch, and in CI mode the pull request fails.</desc>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#5e574f"/>
+    </marker>
+    <style>
+      text { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; fill: #2a2623; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+      .soft { fill: #5e574f; }
+      .rust { fill: #b4472f; }
+      .ok { fill: #2f6f5e; }
+    </style>
+  </defs>
+
+  <rect width="960" height="500" rx="20" fill="#faf7f2"/>
+
+  <!-- service-a -->
+  <rect x="40" y="40" width="290" height="180" rx="14" fill="#fff" stroke="#d6ccbc"/>
+  <text x="60" y="82" font-size="24" font-weight="700">service-a</text>
+  <text x="60" y="106" font-size="15" class="soft">migrations/</text>
+  <text x="312" y="82" font-size="15" text-anchor="end" class="ok" font-weight="700">tests ✓ merged</text>
+  <rect x="58" y="126" width="254" height="34" rx="8" fill="#f6e1db"/>
+  <text x="70" y="149" font-size="16" class="mono rust">DROP COLUMN legacy_note</text>
+  <rect x="58" y="170" width="254" height="34" rx="8" fill="#f1e3cc"/>
+  <text x="70" y="193" font-size="16" class="mono" style="fill:#8a5a1d">status → varchar(20)</text>
+
+  <!-- service-b -->
+  <rect x="40" y="280" width="290" height="180" rx="14" fill="#fff" stroke="#d6ccbc"/>
+  <text x="60" y="322" font-size="24" font-weight="700">service-b</text>
+  <text x="60" y="346" font-size="15" class="soft">migrations/</text>
+  <text x="312" y="322" font-size="15" text-anchor="end" class="ok" font-weight="700">tests ✓</text>
+  <rect x="58" y="366" width="254" height="34" rx="8" fill="#e3efe9"/>
+  <text x="70" y="389" font-size="16" class="mono">still uses legacy_note</text>
+  <rect x="58" y="410" width="254" height="34" rx="8" fill="#e3efe9"/>
+  <text x="70" y="433" font-size="16" class="mono">status is text</text>
+
+  <!-- arrows into migradrift -->
+  <path d="M332 130 C356 130 352 226 374 226" fill="none" stroke="#5e574f" stroke-width="2.5" marker-end="url(#arr)"/>
+  <path d="M332 370 C356 370 352 294 374 294" fill="none" stroke="#5e574f" stroke-width="2.5" marker-end="url(#arr)"/>
+
+  <!-- migradrift -->
+  <rect x="378" y="160" width="236" height="200" rx="18" fill="#2f6f5e"/>
+  <text x="496" y="208" font-size="28" font-weight="700" text-anchor="middle" style="fill:#fff">migradrift</text>
+  <text x="496" y="234" font-size="15" text-anchor="middle" class="mono" style="fill:#cfe6dc">check --ci</text>
+  <text x="398" y="278" font-size="16" style="fill:#fff">1  replay SQL files</text>
+  <text x="398" y="306" font-size="16" style="fill:#fff">2  snapshot per service</text>
+  <text x="398" y="334" font-size="16" style="fill:#fff">3  compare shared tables</text>
+
+  <!-- arrow to findings -->
+  <path d="M616 260 L648 260" fill="none" stroke="#5e574f" stroke-width="2.5" marker-end="url(#arr)"/>
+
+  <!-- findings -->
+  <rect x="652" y="40" width="268" height="420" rx="14" fill="#fff" stroke="#d6ccbc"/>
+  <text x="674" y="84" font-size="24" font-weight="700">Findings</text>
+  <line x1="674" y1="102" x2="898" y2="102" stroke="#e6dfd3"/>
+
+  <circle cx="682" cy="138" r="7" fill="#b4472f"/>
+  <text x="696" y="144" font-size="16" font-weight="700" class="mono">orders.legacy_note</text>
+  <text x="696" y="172" font-size="15" class="soft">dropped by service-a,</text>
+  <text x="696" y="193" font-size="15" class="soft">still used by service-b</text>
+  <rect x="696" y="206" width="64" height="26" rx="13" fill="#f6e1db"/>
+  <text x="728" y="224" font-size="14" font-weight="700" text-anchor="middle" class="rust">error</text>
+
+  <circle cx="682" cy="276" r="7" fill="#b5762a"/>
+  <text x="696" y="282" font-size="16" font-weight="700" class="mono">orders.status</text>
+  <text x="696" y="310" font-size="15" class="soft">varchar(20) vs text</text>
+  <rect x="696" y="324" width="78" height="26" rx="13" fill="#f1e3cc"/>
+  <text x="735" y="342" font-size="14" font-weight="700" text-anchor="middle" style="fill:#8a5a1d">warning</text>
+
+  <rect x="674" y="384" width="224" height="52" rx="26" fill="#2a2623"/>
+  <text x="786" y="416" font-size="16" font-weight="700" text-anchor="middle" style="fill:#fff">the pull request fails ✕</text>
+
+  <text x="480" y="488" font-size="15" font-style="italic" text-anchor="middle" class="soft">Both sets of migrations are valid on their own. The conflict only exists between them.</text>
+</svg>

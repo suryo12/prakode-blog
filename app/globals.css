@@ -1203,3 +1203,25 @@ a:hover {
   content: "·";
   margin-right: 10px;
 }
+
+/* ---------- Illustrations inside posts ---------- */
+.prose p:has(> img) {
+  margin: 2em 0 0.6em;
+}
+.prose p > img {
+  display: block;
+  width: 100%;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+.prose p:has(> img) + p:has(> em:only-child) {
+  margin: 0 0 2em;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.prose p:has(> img) + p:has(> em:only-child) em {
+  font-style: normal;
+}

@@ -33,14 +33,22 @@ RSS (`/rss.xml`), sitemap and tag pages are generated automatically.
 
 Comments are stored in GitHub Discussions and stay hidden until configured.
 
-1. Push this project to a **public** GitHub repo.
-2. In the repo: Settings → General → enable **Discussions**; create a category
-   named `Comments` (type: Announcements, so only Giscus can open threads).
-3. Install the app: https://github.com/apps/giscus
-4. Open https://giscus.app, enter the repo, choose "Specific term" mapping,
-   and copy the `data-repo-id` and `data-category-id` values.
-5. Copy `.env.example` to `.env.local` (and add the same variables in the
-   Cloudflare Pages build settings), then fill in the four values.
+1. The repo must be **public** and have **Discussions** enabled (Settings -> General).
+2. Install the Giscus app on the repo: https://github.com/apps/giscus
+   (choose "Only select repositories" and pick this repo). Without this step
+   Giscus answers "giscus is not installed on this repository".
+3. Put the repo/category IDs in `.env.production` (see `.env.example`). They
+   are public identifiers, not secrets, so the file can be committed. The
+   category should be **Announcements** so only maintainers and Giscus can
+   open threads.
+4. `npm run build`, then deploy.
+
+## Visitor and read counter
+
+`functions/api/*` runs on Cloudflare Pages Functions with a D1 database
+(`schema.sql`, bound as `DB` in `wrangler.toml`). It stores only counters and
+salted daily hashes (no IPs). The `SALT` secret is set with
+`npx wrangler pages secret put SALT --project-name prakode-blog`.
 
 ## Deploy (Cloudflare Pages)
 

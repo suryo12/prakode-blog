@@ -32,6 +32,10 @@ Instead of connecting to a database, `migradrift` reads the thing every service 
 3. For every table that shows up in more than one service, it compares columns and types.
 4. A column that is missing on one side is reported as an **error**. A type mismatch is reported as a **warning**.
 
+![Diagram: service-a drops a column that service-b still uses. migradrift replays both sets of migrations, compares the shared table and reports an error and a warning, so the pull request fails.](/images/schema-drift.svg)
+
+*The whole idea in one picture: two valid sets of migrations, one hidden conflict, caught before merge.*
+
 Because it only parses files, there is no database to start, no credentials to hand to CI and no network involved. It runs in a second or two and gives the same answer every time.
 
 The config is as small as it sounds:

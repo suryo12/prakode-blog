@@ -11,6 +11,10 @@ Since the first post here is a bit of a placeholder, this one is the proper "how
 
 The whole site is **static**. Every page is generated at build time and served as plain files from Cloudflare Pages. There is no server rendering anything when you open a post, which is why it loads quickly and why there is almost nothing to break.
 
+![Diagram: MDX posts in Git are built by Next.js into static files served by Cloudflare Pages. The browser counts visits through a Pages Function backed by D1, and loads comments from Giscus, which stores them in GitHub Discussions.](/images/blog-architecture.svg)
+
+*Three small flows: publishing, counting a visit, and comments.*
+
 - **Framework:** Next.js (App Router) with static export.
 - **Posts:** MDX files in the repository, each with a few lines of front matter (title, description, date, tags). Writing a post is creating a file and pushing it.
 - **Hosting:** Cloudflare Pages, with the domain on the same Cloudflare account.
