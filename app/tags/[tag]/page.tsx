@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import PostList from "@/components/PostList";
+import TagFilter from "@/components/TagFilter";
 import { getAllPosts, getAllTags } from "@/lib/posts";
 
 type Params = { tag: string };
@@ -20,7 +20,7 @@ export async function generateMetadata({
   return {
     title: `#${tag}`,
     description: `Posts tagged ${tag}.`,
-    alternates: { canonical: `/tags/${encodeURIComponent(tag)}/` },
+    alternates: { canonical: `/tags/${encodeURIComponent(tag)}` },
   };
 }
 
@@ -33,11 +33,14 @@ export default async function TagPage({
   const posts = getAllPosts().filter((p) => p.tags.includes(tag));
   return (
     <>
-      <p className="mono muted small">
-        <Link href="/blog/">← all posts</Link>
-      </p>
-      <h1 className="serif page-title">#{tag}</h1>
-      <PostList posts={posts} />
+      <header className="page-head">
+        <h1 className="serif">#{tag}</h1>
+        <p className="lead">
+          {posts.length} {posts.length === 1 ? "post" : "posts"} on this topic.
+        </p>
+      </header>
+      <TagFilter active={tag} />
+      <PostList posts={posts} groupByYear />
     </>
   );
 }

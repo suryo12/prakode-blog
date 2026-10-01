@@ -14,7 +14,7 @@ export function GET() {
   const posts = getAllPosts();
   const items = posts
     .map((p) => {
-      const url = `${site.url}/blog/${p.slug}/`;
+      const url = `${site.url}/blog/${p.slug}`;
       return `    <item>
       <title>${esc(p.title)}</title>
       <link>${url}</link>

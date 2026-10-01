@@ -7,7 +7,9 @@ import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypePrettyCode from "rehype-pretty-code";
 import Comments from "@/components/Comments";
-import { formatDate, getAllPosts, getPost } from "@/lib/posts";
+import ReadingProgress from "@/components/ReadingProgress";
+import Toc from "@/components/Toc";
+import { formatDate, getAllPosts, getHeadings, getPost } from "@/lib/posts";
 import { site } from "@/lib/site";
 
 type Params = { slug: string };
@@ -25,7 +27,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const post = getPost((await params).slug);
   if (!post) return {};
-  const url = `/blog/${post.slug}/`;
+  const url = `/blog/${post.slug}`;
   return {
     title: post.title,
     description: post.description,
@@ -48,8 +50,13 @@ export default async function PostPage({
 }: {
   params: Promise<Params>;
 }) {
-  const post = getPost((await params).slug);
-  if (!post) notFound();
+  const { slug } = await params;
+  const posts = getAllPosts();
+  const index = posts.findIndex((p) => p.slug === slug);
+  if (index === -1) notFound();
+  const post = posts[index];
+  const newer = posts[index - 1];
+  const older = posts[index + 1];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -58,39 +65,43 @@ export default async function PostPage({
     description: post.description,
     datePublished: post.date,
     author: { "@type": "Person", name: site.author, url: site.aboutUrl },
-    mainEntityOfPage: `${site.url}/blog/${post.slug}/`,
+    mainEntityOfPage: `${site.url}/blog/${post.slug}`,
   };
 
   return (
     <article>
+      <ReadingProgress />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
         }}
       />
-      <p className="mono muted small">
-        <Link href="/blog/">← all posts</Link>
-      </p>
-      <h1 className="serif page-title">{post.title}</h1>
-      <div className="meta mono muted small">
-        <time dateTime={post.date}>{formatDate(post.date)}</time>
-        <span>·</span>
-        <span>{post.readingMinutes} min read</span>
-      </div>
-      {post.tags.length > 0 && (
-        <div className="tags">
+
+      <nav className="crumbs" aria-label="Breadcrumb">
+        <Link href="/blog">← All posts</Link>
+      </nav>
+
+      <header className="post-head">
+        <h1 className="serif">{post.title}</h1>
+        {post.description && <p className="lead">{post.description}</p>}
+        <div className="post-meta">
+          <time dateTime={post.date}>{formatDate(post.date)}</time>
+          <span aria-hidden="true">·</span>
+          <span>{post.readingMinutes} min read</span>
           {post.tags.map((t) => (
             <Link
               key={t}
-              href={`/tags/${encodeURIComponent(t)}/`}
-              className="chip"
+              href={`/tags/${encodeURIComponent(t)}`}
+              className="tag"
             >
-              {t}
+              #{t}
             </Link>
           ))}
         </div>
-      )}
+      </header>
+
+      <Toc headings={getHeadings(post.content)} />
 
       <div className="prose">
         <MDXRemote
@@ -103,16 +114,37 @@ export default async function PostPage({
                 [rehypeAutolinkHeadings, { behavior: "wrap" }],
                 [
                   rehypePrettyCode,
-                  {
-                    theme: { light: "github-light", dark: "github-dark" },
-                    keepBackground: false,
-                  },
+                  { theme: "github-light", keepBackground: false },
                 ],
               ],
             },
           }}
         />
       </div>
+
+      {(newer || older) && (
+        <nav className="pager" aria-label="More posts">
+          {older ? (
+            <Link href={`/blog/${older.slug}`} className="pager-link">
+              <span className="pager-dir">← Older</span>
+              <span className="pager-title serif">{older.title}</span>
+            </Link>
+          ) : (
+            <span />
+          )}
+          {newer ? (
+            <Link
+              href={`/blog/${newer.slug}`}
+              className="pager-link pager-next"
+            >
+              <span className="pager-dir">Newer →</span>
+              <span className="pager-title serif">{newer.title}</span>
+            </Link>
+          ) : (
+            <span />
+          )}
+        </nav>
+      )}
 
       <Comments term={post.slug} />
     </article>

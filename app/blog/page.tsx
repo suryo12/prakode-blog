@@ -1,34 +1,29 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import PostList from "@/components/PostList";
-import { getAllPosts, getAllTags } from "@/lib/posts";
+import { SearchTrigger } from "@/components/Search";
+import TagFilter from "@/components/TagFilter";
+import { getAllPosts } from "@/lib/posts";
 
 export const metadata: Metadata = {
   title: "Blog",
-  description: "All posts on prakode.site.",
-  alternates: { canonical: "/blog/" },
+  description: "All posts on prakode.site, newest first.",
+  alternates: { canonical: "/blog" },
 };
 
 export default function BlogIndex() {
   const posts = getAllPosts();
-  const tags = getAllTags();
   return (
     <>
-      <h1 className="serif page-title">Blog</h1>
-      {tags.length > 0 && (
-        <div className="tags tag-cloud">
-          {tags.map(({ tag, count }) => (
-            <Link
-              key={tag}
-              href={`/tags/${encodeURIComponent(tag)}/`}
-              className="chip"
-            >
-              {tag} <span className="muted">{count}</span>
-            </Link>
-          ))}
-        </div>
-      )}
-      <PostList posts={posts} />
+      <header className="page-head">
+        <h1 className="serif">Writing</h1>
+        <p className="lead">
+          {posts.length} {posts.length === 1 ? "post" : "posts"}, newest first.
+          Filter by topic or search to find something specific.
+        </p>
+      </header>
+      <SearchTrigger large />
+      <TagFilter />
+      <PostList posts={posts} groupByYear />
     </>
   );
 }
