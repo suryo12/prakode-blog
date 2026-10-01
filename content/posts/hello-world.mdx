@@ -1,0 +1,47 @@
+---
+title: "Hello, world — why this blog exists"
+description: "A first post, and a template for how posts are written on this site."
+date: 2026-09-30
+tags: [meta]
+draft: false
+---
+
+Welcome to **prakode.site**. This is my notebook for backend engineering, fleet and fintech platforms, and whatever else I learn while shipping software.
+
+The person behind the blog has a proper portfolio at [me.prakode.site](https://me.prakode.site); this site is the more informal side.
+
+## How posts are written
+
+Every post is a `.mdx` file in `content/posts/`. The top of the file holds the metadata:
+
+```yaml
+---
+title: "My post title"
+description: "One sentence shown in lists and search results."
+date: 2026-10-01
+tags: [backend, notes]
+draft: true # hidden in production builds until you flip it
+---
+```
+
+Everything below that is regular Markdown, with code highlighting:
+
+```ts
+export function greet(name: string): string {
+  return `Hello, ${name}!`;
+}
+```
+
+Tables and task lists work too:
+
+| Feature  | Status |
+| -------- | ------ |
+| Markdown | done   |
+| Comments | done   |
+
+- [x] Publish the blog
+- [ ] Write the next post
+
+## Comments
+
+If something here helped you, or I got it wrong, leave a comment below. Corrections are welcome.
