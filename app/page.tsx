@@ -10,24 +10,42 @@ export default function Home() {
   return (
     <>
       <section className="hero">
-        <p className="eyebrow">Hello, I&apos;m Suryo</p>
-        <h1 className="serif">
-          Calm notes on building software that keeps running.
-        </h1>
-        <p className="lead">
-          I&apos;m a software engineer and technical project manager. Here I
-          write about backend engineering, fleet and fintech platforms, and the
-          lessons I pick up along the way. Grab a coffee and stay a while.
-        </p>
-        <div className="hero-actions">
-          <Link href="/blog" className="btn btn-primary">
-            Read the blog
-          </Link>
-          <a href={site.aboutUrl} className="btn btn-quiet">
-            About me <span aria-hidden="true">↗</span>
-          </a>
+        <div className="hero-text">
+          <p className="eyebrow">Hello, I&apos;m Suryo</p>
+          <h1 className="serif">
+            Calm notes on building software that keeps running.
+          </h1>
+          <p className="lead">
+            I&apos;m a software engineer and technical project manager. Here I
+            write about backend engineering, fleet and fintech platforms, and
+            the lessons I pick up along the way. Grab a coffee and stay a
+            while.
+          </p>
+          <div className="hero-actions">
+            <Link href="/blog" className="btn btn-primary">
+              Read the blog
+            </Link>
+            <a href={site.aboutUrl} className="btn btn-quiet">
+              About me <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+          <SearchTrigger large />
         </div>
-        <SearchTrigger large />
+
+        <aside className="profile" aria-label="About the author">
+          <div className="avatar" aria-hidden="true">
+            SP
+          </div>
+          <h2 className="serif">{site.author}</h2>
+          <p>
+            Software engineer &amp; technical project manager, building
+            backend, fleet and fintech platforms.
+          </p>
+          <div className="profile-links">
+            <a href={site.aboutUrl}>Portfolio ↗</a>
+            <a href="/rss.xml">RSS feed</a>
+          </div>
+        </aside>
       </section>
 
       <section className="block" aria-labelledby="latest">
@@ -39,7 +57,7 @@ export default function Home() {
             All posts →
           </Link>
         </div>
-        <PostList posts={posts.slice(0, 6)} />
+        <PostList posts={posts.slice(0, 7)} featureFirst />
       </section>
 
       <section className="block" aria-labelledby="topics">

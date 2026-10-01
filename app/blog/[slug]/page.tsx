@@ -68,8 +68,14 @@ export default async function PostPage({
     mainEntityOfPage: `${site.url}/blog/${post.slug}`,
   };
 
+  const tagLinks = post.tags.map((t) => (
+    <Link key={t} href={`/tags/${encodeURIComponent(t)}`} className="tag">
+      #{t}
+    </Link>
+  ));
+
   return (
-    <article>
+    <article className="article">
       <ReadingProgress />
       <script
         type="application/ld+json"
@@ -78,32 +84,64 @@ export default async function PostPage({
         }}
       />
 
-      <nav className="crumbs" aria-label="Breadcrumb">
-        <Link href="/blog">← All posts</Link>
-      </nav>
+      {/* Desktop-only left rail: back link + details stay in view while reading */}
+      <aside className="rail" aria-label="Post details">
+        <Link href="/blog" className="rail-back">
+          ← All posts
+        </Link>
+        <dl className="rail-meta">
+          <div>
+            <dt>Published</dt>
+            <dd>
+              <time dateTime={post.date}>{formatDate(post.date)}</time>
+            </dd>
+          </div>
+          <div>
+            <dt>Reading time</dt>
+            <dd>{post.readingMinutes} min</dd>
+          </div>
+          {post.tags.length > 0 && (
+            <div>
+              <dt>Topics</dt>
+              <dd className="rail-tags">{tagLinks}</dd>
+            </div>
+          )}
+        </dl>
+      </aside>
 
-      <header className="post-head">
+      <header className="article-head">
+        <nav className="crumbs" aria-label="Breadcrumb">
+          <Link href="/blog">← All posts</Link>
+        </nav>
         <h1 className="serif">{post.title}</h1>
         {post.description && <p className="lead">{post.description}</p>}
-        <div className="post-meta">
+        <div className="post-meta article-meta">
           <time dateTime={post.date}>{formatDate(post.date)}</time>
           <span aria-hidden="true">·</span>
           <span>{post.readingMinutes} min read</span>
-          {post.tags.map((t) => (
-            <Link
-              key={t}
-              href={`/tags/${encodeURIComponent(t)}`}
-              className="tag"
-            >
-              #{t}
-            </Link>
-          ))}
+          {tagLinks}
         </div>
       </header>
 
-      <Toc headings={getHeadings(post.content)} />
+      <aside className="side">
+        <div className="side-toc">
+          <Toc headings={getHeadings(post.content)} />
+        </div>
+        <div className="author-card">
+          <div className="avatar avatar-sm" aria-hidden="true">
+            SP
+          </div>
+          <div>
+            <p className="author-name serif">{site.author}</p>
+            <p className="author-bio">
+              Software engineer &amp; technical project manager.{" "}
+              <a href={site.aboutUrl}>More about me ↗</a>
+            </p>
+          </div>
+        </div>
+      </aside>
 
-      <div className="prose">
+      <div className="prose article-body">
         <MDXRemote
           source={post.content}
           options={{
@@ -133,10 +171,7 @@ export default async function PostPage({
             <span />
           )}
           {newer ? (
-            <Link
-              href={`/blog/${newer.slug}`}
-              className="pager-link pager-next"
-            >
+            <Link href={`/blog/${newer.slug}`} className="pager-link pager-next">
               <span className="pager-dir">Newer →</span>
               <span className="pager-title serif">{newer.title}</span>
             </Link>
@@ -146,7 +181,9 @@ export default async function PostPage({
         </nav>
       )}
 
-      <Comments term={post.slug} />
+      <div className="discussion">
+        <Comments term={post.slug} />
+      </div>
     </article>
   );
 }

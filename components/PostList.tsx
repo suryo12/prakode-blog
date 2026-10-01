@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { formatDate, type PostMeta } from "@/lib/posts";
 
-function Item({ p }: { p: PostMeta }) {
+function Card({ p, featured }: { p: PostMeta; featured?: boolean }) {
   return (
-    <li className="post">
-      <h3 className="post-title serif">
+    <li className={featured ? "card card-featured" : "card"}>
+      {featured && <span className="card-badge">Latest</span>}
+      <h3 className="card-title serif">
         <Link href={`/blog/${p.slug}`}>{p.title}</Link>
       </h3>
-      {p.description && <p className="post-desc">{p.description}</p>}
-      <div className="post-meta">
+      {p.description && <p className="card-desc">{p.description}</p>}
+      <div className="card-meta">
         <time dateTime={p.date}>{formatDate(p.date)}</time>
         <span aria-hidden="true">·</span>
         <span>{p.readingMinutes} min read</span>
@@ -29,18 +30,20 @@ function Item({ p }: { p: PostMeta }) {
 export default function PostList({
   posts,
   groupByYear = false,
+  featureFirst = false,
 }: {
   posts: PostMeta[];
   groupByYear?: boolean;
+  featureFirst?: boolean;
 }) {
   if (posts.length === 0)
     return <p className="empty">Nothing here yet — check back soon.</p>;
 
   if (!groupByYear)
     return (
-      <ul className="post-list">
-        {posts.map((p) => (
-          <Item key={p.slug} p={p} />
+      <ul className="card-grid">
+        {posts.map((p, i) => (
+          <Card key={p.slug} p={p} featured={featureFirst && i === 0} />
         ))}
       </ul>
     );
@@ -55,9 +58,9 @@ export default function PostList({
       {[...years].map(([year, items]) => (
         <section key={year} className="year-group" aria-label={year}>
           <h2 className="year">{year}</h2>
-          <ul className="post-list">
+          <ul className="card-grid">
             {items.map((p) => (
-              <Item key={p.slug} p={p} />
+              <Card key={p.slug} p={p} />
             ))}
           </ul>
         </section>
