@@ -52,6 +52,12 @@ salted daily hashes (no IPs). The `SALT` secret is set with
 
 ## Deploy (Cloudflare Pages)
 
+The repo is connected to Cloudflare Pages: every push to `main` builds and
+deploys automatically (preview deployments for other branches).
+
+- Framework preset: None
 - Build command: `npm run build`
-- Output directory: `out`
-- Custom domain: `prakode.site` (keep `me.prakode.site` pointing at the portfolio)
+- Output directory: `out` (set via `wrangler.toml`)
+- Node version: pinned by `.node-version`
+- Secret `SALT` and the D1 binding live in the Pages project / `wrangler.toml`
+- Custom domain: `prakode.site` (`me.prakode.site` stays on the portfolio)
