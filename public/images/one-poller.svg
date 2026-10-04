@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" role="img" aria-labelledby="t d">
+  <title id="t">One poller per bot token: before and after</title>
+  <desc id="d">Before: the Telegram bot token allows one poller. The plugin is enabled for every agent process, so a test session and a background helper each start their own poller; the newest one kills the previous poller through a pid file, takes the slot, and drops the messages because it is not listening to the chat. The main bot is silenced. After: the plugin is off in the bot's folder and enabled only for the main bot through its own settings file, so the main bot is the single owner of the poller. Helpers and test sessions open no connection. A systemd timer checks every five minutes and starts the bot only if no listener is running.</desc>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#5e574f"/>
+    </marker>
+    <marker id="arr-rust" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#b4472f"/>
+    </marker>
+    <marker id="arr-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#2f6f5e"/>
+    </marker>
+    <style>
+      text { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; fill: #2a2623; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+      .soft { fill: #5e574f; }
+      .rust { fill: #b4472f; }
+      .ok { fill: #2f6f5e; }
+    </style>
+  </defs>
+
+  <rect width="960" height="520" rx="20" fill="#faf7f2"/>
+
+  <!-- BEFORE -->
+  <rect x="30" y="30" width="430" height="460" rx="14" fill="#fff" stroke="#d6ccbc"/>
+  <text x="52" y="70" font-size="22" font-weight="700">Before</text>
+  <text x="52" y="94" font-size="15" class="soft">whoever starts last owns the bot</text>
+
+  <rect x="150" y="118" width="190" height="58" rx="10" fill="#f1e3cc" stroke="#d6ccbc"/>
+  <text x="245" y="143" font-size="16" font-weight="700" text-anchor="middle">bot token</text>
+  <text x="245" y="164" font-size="13" text-anchor="middle" class="mono soft">one poller allowed</text>
+
+  <rect x="48" y="290" width="124" height="80" rx="10" fill="#fff" stroke="#d6ccbc"/>
+  <text x="110" y="320" font-size="15" font-weight="700" text-anchor="middle">main bot</text>
+  <text x="110" y="342" font-size="13" text-anchor="middle" class="rust" font-weight="700">silenced</text>
+
+  <rect x="184" y="290" width="124" height="80" rx="10" fill="#fff" stroke="#d6ccbc"/>
+  <text x="246" y="320" font-size="15" font-weight="700" text-anchor="middle">test session</text>
+  <text x="246" y="342" font-size="13" text-anchor="middle" class="mono soft">plugin on</text>
+
+  <rect x="320" y="290" width="124" height="80" rx="10" fill="#f6e1db" stroke="#b4472f"/>
+  <text x="382" y="316" font-size="15" font-weight="700" text-anchor="middle">background</text>
+  <text x="382" y="335" font-size="15" font-weight="700" text-anchor="middle">helper</text>
+  <text x="382" y="356" font-size="13" text-anchor="middle" class="mono soft">plugin on</text>
+
+  <path d="M382 290 L300 182" fill="none" stroke="#b4472f" stroke-width="2.5" marker-end="url(#arr-rust)"/>
+  <text x="360" y="230" font-size="13" class="rust">takes the slot</text>
+
+  <path d="M382 372 C382 428 110 428 110 376" fill="none" stroke="#b4472f" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arr-rust)"/>
+  <text x="246" y="446" font-size="13" text-anchor="middle" class="rust">kills the previous poller (pid file)</text>
+  <text x="246" y="472" font-size="13" text-anchor="middle" class="soft">messages are taken off the queue and dropped</text>
+
+  <!-- AFTER -->
+  <rect x="500" y="30" width="430" height="460" rx="14" fill="#fff" stroke="#d6ccbc"/>
+  <text x="522" y="70" font-size="22" font-weight="700">After</text>
+  <text x="522" y="94" font-size="15" class="soft">one owner, chosen on purpose</text>
+
+  <rect x="620" y="118" width="190" height="58" rx="10" fill="#e3efe9" stroke="#2f6f5e"/>
+  <text x="715" y="143" font-size="16" font-weight="700" text-anchor="middle">bot token</text>
+  <text x="715" y="164" font-size="13" text-anchor="middle" class="mono soft">one poller allowed</text>
+
+  <rect x="520" y="290" width="186" height="80" rx="10" fill="#e3efe9" stroke="#2f6f5e"/>
+  <text x="613" y="316" font-size="15" font-weight="700" text-anchor="middle">main bot</text>
+  <text x="613" y="337" font-size="12" text-anchor="middle" class="mono soft">--settings main-only</text>
+  <text x="613" y="358" font-size="13" text-anchor="middle" class="ok" font-weight="700">owns the poller</text>
+
+  <rect x="722" y="290" width="188" height="80" rx="10" fill="#fff" stroke="#b9ae9d" stroke-dasharray="6 5"/>
+  <text x="816" y="316" font-size="15" font-weight="700" text-anchor="middle">helpers, tests</text>
+  <text x="816" y="337" font-size="12" text-anchor="middle" class="mono soft">plugin off in folder</text>
+  <text x="816" y="358" font-size="13" text-anchor="middle" class="soft">no connection</text>
+
+  <path d="M613 290 L690 182" fill="none" stroke="#2f6f5e" stroke-width="2.5" marker-end="url(#arr-ok)"/>
+
+  <rect x="520" y="404" width="390" height="62" rx="10" fill="#faf7f2" stroke="#d6ccbc"/>
+  <text x="540" y="430" font-size="14" class="mono">systemd timer · every 5 min</text>
+  <text x="540" y="452" font-size="13" class="soft">start the bot only if no listener is running</text>
+  <path d="M613 404 L613 378" fill="none" stroke="#5e574f" stroke-width="2" marker-end="url(#arr)"/>
+</svg>
