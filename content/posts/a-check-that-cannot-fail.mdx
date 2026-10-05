@@ -1,0 +1,71 @@
+---
+title: "A check that cannot fail is not a check"
+description: "Four green results that proved nothing: a lock test that passed without the lock, a money test that could not tell right from wrong, a scanner that scanned nothing, and an audit that measured the login page."
+date: 2026-10-05
+tags: [testing, reliability, ci]
+---
+
+There is one question I now ask before I trust any green result: **what state of the world would have made this red?**
+
+If the honest answer is "nothing I care about", the check is decoration. It will stay green when the code is right and stay green when the code is wrong, and from the outside you can't tell which day it is.
+
+That sounds obvious written down. In practice I keep finding these checks, often in my own work, because a check that can't fail looks exactly like a check that passed. Here are four from the last couple of months.
+
+![Diagram: a two by two grid of claim true or false against check green or red. Three cells are fine. The cell where the claim is false and the check is still green is the dangerous one, and mutating the code is how you visit it on purpose.](/images/check-cannot-fail.svg)
+
+*Most tests only ever visit the top-left cell. The useful question is whether the bottom-left cell exists.*
+
+## 1. The lock test that passed without the lock
+
+I wrote a concurrency test: two requests try to spend the same payment at the same moment, and a row lock (`SELECT … FOR UPDATE`) is supposed to make sure only one of them wins. The test passed.
+
+Then I deleted the lock and ran it again. It still passed.
+
+The two requests were serialising on their own. The window between reading the balance and writing it was so short that they never actually overlapped, lock or no lock. The test was measuring the scheduler's luck, not my code.
+
+The fix was to generate enough contention to actually lose the race. With ten simultaneous attempts instead of two, the build without the lock spent 200,000 out of a 100,000 payment, which I confirmed by reading the rows back from the database rather than trusting the responses. Now removing the lock turns the test red, which is the whole point of having it. A test of a race has to be able to lose the race.
+
+## 2. The money test that could not tell right from wrong
+
+A price field was being parsed by splitting the string on the decimal point instead of multiplying a float by 100. I wrote a test called "does not lose a cent to a float", with cases like `8.29 → 829` and `2500.07 → 250007`.
+
+To check the test, I replaced the careful implementation with exactly the one it was meant to forbid: `Math.round(Number(text) * 100)`. All fourteen cases passed.
+
+So instead of arguing about floating point, I measured. Every two-decimal value from 0.00 to 100,000.99, about ten million of them, through both methods. They never disagreed once. `2500.07 * 100` really is `250006.99999999997`, and `Math.round` really does rescue it.
+
+The two only part ways somewhere around 7 × 10¹³. So the test now includes `70368744177664.01`, a number nobody will ever charge. It looks silly, and it is the only input in the file where the right and wrong implementations give different answers.
+
+The general rule I took from it: if you can't name an input on which the correct and incorrect code disagree, you don't have a test yet. You have a restatement of what the code currently does.
+
+## 3. The scanner that scanned nothing
+
+Some rules are easiest to enforce with a test that walks the repository: find every file matching a pattern, collect the violations, assert the list is empty.
+
+`expect(violations).toEqual([])` passes in exactly the same way when there are no violations and when the glob matched no files at all. A typo in a path gives you a test that is green forever and reads as coverage to everyone who comes after you.
+
+So every scanning test I write now carries a second assertion about the scan itself: it found more than N files, or a known file is in the list, or a known-bad fixture is reported. A later version taught me a variation: the scan can match, but match the *wrong region*. A regex meant to read one table row ran past its end and matched the next row, so two tests that looked independent were checking the same line. Bound the search to the block you mean, and assert something that is only true inside it.
+
+## 4. The audit that measured the login page
+
+I ran a layout audit across a dozen pages and eight screen sizes in a headless browser: overflow, tap targets that are too small, controls hidden under the bottom bar. One login, shared by every browser context.
+
+Thirty of the rows were the cleanest in the whole run. No overflow, almost nothing too small. They were also measuring the login form. The session's refresh token rotated on first use, so the later contexts were bounced to the sign-in page, and they measured that, accurately.
+
+A harness that wanders onto the wrong page doesn't crash. It reports health, and the simpler the page it lands on, the healthier it looks. I only caught it because the "worst control" column on three viewports was a "Forgot password?" link that doesn't exist on the pages I was auditing.
+
+Now every row carries a flag that proves it measured the intended page, the run prints `104/104 rows on the right page`, and it exits non-zero if that number is short. I read that line before I read any results.
+
+## Zero is not a result yet
+
+The same idea applies to silence. "The alert fired zero times" means either nothing was due or the alert is broken. Those are opposite facts with the same face. Before reporting a zero, I write the query that asks whether there was anything that *could* have fired: how many candidates exist, and how close the nearest one is to its trigger. "Forty-eight candidates, none past the threshold, the nearest fifty minutes away" is a result. "Zero" on its own is a guess.
+
+## The habit
+
+None of this needs a framework. It's a few minutes per check:
+
+- **Break the code once** and watch the test go red. If it doesn't, the test is the bug.
+- **Name the input** where right and wrong disagree, even if it's absurd.
+- **Assert the discovery worked** for anything that finds its own inputs.
+- **Make every measurement prove what it measured**, and print that proof first.
+
+A green check is only evidence if red was possible.
